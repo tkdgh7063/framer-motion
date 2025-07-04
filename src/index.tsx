@@ -60,7 +60,7 @@ table {
 body {
   font-weight: 300;
   font-family: 'Source Sans Pro', sans-serif;
-  background-color: linear-gradient(135deg,#e09,#d0e);
+  background:linear-gradient(135deg,#e09,#d0e);
   color: black;
   line-height: 1.2;
 }
@@ -74,12 +74,10 @@ const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement
 );
 root.render(
-  // <React.StrictMode>
   <RecoilRoot>
     <ThemeProvider theme={darkTheme}>
       <GlobalStyle />
       <App />
     </ThemeProvider>
   </RecoilRoot>
-  // </React.StrictMode>
 );
