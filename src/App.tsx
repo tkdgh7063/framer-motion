@@ -1,5 +1,6 @@
 import styled from "styled-components";
-import { motion, stagger, Variants } from "motion/react";
+import { motion, Variants } from "motion/react";
+import { useRef } from "react";
 
 const Wrapper = styled.div`
   height: 100vh;
@@ -8,61 +9,53 @@ const Wrapper = styled.div`
   align-items: center;
 `;
 
+// parent container used as drag constraint area
+const Container = styled(motion.div)`
+  width: 600px;
+  height: 600px;
+  background-color: rgba(255, 255, 255, 0.4);
+  border-radius: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+`;
+
 const Box = styled(motion.div)`
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
   height: 200px;
   width: 200px;
-  background-color: rgba(255, 255, 255, 0.2);
+  background-color: rgba(255, 255, 255, 1);
   border-radius: 40px;
   box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1), 0 10px 20px rgba(0, 0, 0, 0.06);
 `;
 
-const Circle = styled(motion.div)`
-  background-color: white;
-  place-self: center;
-  height: 70px;
-  width: 70px;
-  border-radius: 50%;
-  box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1), 0 10px 20px rgba(0, 0, 0, 0.06);
-`;
-
-// animation variants for the Box container
+// variants used for whileHover, whileTap, whileDrag states
 const boxVariants: Variants = {
-  start: { opacity: 0, scale: 0.5 },
-  end: {
-    opacity: 1,
-    scale: 1,
-    transition: {
-      type: "spring",
-      duration: 0.5,
-      bounce: 0.5,
-      delayChildren: stagger(0.5, {
-        // applies a 0.5s stagger delay between each child animation
-        // and starts the first child after a 0.5s delay
-        startDelay: 0.5,
-      }),
-    },
+  hover: { scale: 1.5, rotateZ: 90 }, // hover animation
+  tap: { scale: 1, borderRadius: "50%" }, // tap (press) animation
+  drag: {
+    backgroundColor: "rgb(46, 204, 113)", // style change while dragging
+    transition: { duration: 10 }, // long drag animation
   },
 };
 
-// animation variants for each Circle
-const circleVariants: Variants = {
-  start: { opacity: 0, y: 10 },
-  end: { opacity: 1, y: 0 },
-};
-
 function App() {
+  const containerRef = useRef<HTMLDivElement>(null); // ref for drag constraint
   return (
     <Wrapper>
-      <Box variants={boxVariants} initial="start" animate="end">
-        {/* Each Circle inherits initial and animate states from parent Box */}
-        {/* Staggering will cause them to animate one by one */}
-        <Circle variants={circleVariants} />
-        <Circle variants={circleVariants} />
-        <Circle variants={circleVariants} />
-        <Circle variants={circleVariants} />
-      </Box>
+      <Container ref={containerRef}>
+        <Box
+          drag // enables drag
+          dragSnapToOrigin // returns to origin when released
+          // dragConstraints={{ top: -200, bottom: 200, left: -200, right: 200 }}
+          dragConstraints={containerRef} // restricts drag within container
+          dragElastic={0} // defines the "stretchiness" of the drag — 0 = no elasticity, 1 = very elastic
+          variants={boxVariants} // connects to variant states
+          whileHover="hover" // triggers hover variant
+          whileTap="tap" // triggers tap variant
+          whileDrag="drag" // triggers drag variant
+        />
+      </Container>
     </Wrapper>
   );
 }
