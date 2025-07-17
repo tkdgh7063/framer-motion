@@ -23,7 +23,7 @@ const Box = styled(motion.div)`
 const boxVariants = {
   initial: { opacity: 0, scale: 0 },
   visible: { opacity: 1, scale: 1, rotateZ: 360 },
-  exit: { opacity: 0, scale: 0, y: 20 },
+  exit: { opacity: 0, scale: 0, y: 80 },
 };
 
 function App() {
