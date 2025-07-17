@@ -1,24 +1,17 @@
 import styled from "styled-components";
-import { motion, Variants } from "motion/react";
-import { useRef } from "react";
+import {
+  motion,
+  useMotionValue,
+  useMotionValueEvent,
+  useTransform,
+  useScroll,
+} from "motion/react";
 
-const Wrapper = styled.div`
-  height: 100vh;
+const Wrapper = styled(motion.div)`
+  height: 200vh;
   display: flex;
   justify-content: center;
   align-items: center;
-`;
-
-// parent container used as drag constraint area
-const Container = styled(motion.div)`
-  width: 600px;
-  height: 600px;
-  background-color: rgba(255, 255, 255, 0.4);
-  border-radius: 40px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  overflow: hidden;
 `;
 
 const Box = styled(motion.div)`
@@ -29,33 +22,32 @@ const Box = styled(motion.div)`
   box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1), 0 10px 20px rgba(0, 0, 0, 0.06);
 `;
 
-// variants used for whileHover, whileTap, whileDrag states
-const boxVariants: Variants = {
-  hover: { scale: 1.5, rotateZ: 90 }, // hover animation
-  tap: { scale: 1, borderRadius: "50%" }, // tap (press) animation
-  drag: {
-    backgroundColor: "rgb(46, 204, 113)", // style change while dragging
-    transition: { duration: 10 }, // long drag animation
-  },
-};
-
 function App() {
-  const containerRef = useRef<HTMLDivElement>(null); // ref for drag constraint
+  const x = useMotionValue(0);
+  // const scale = useTransform(x, [-800, 0, 800], [2, 1, 0.05]);
+
+  const rotateZ = useTransform(x, [-840, 840], [-360, 360]);
+  // useMotionValueEvent(rotateZ, "change", (latest) => {
+  //   console.log(latest);
+  // });
+
+  const gradient = useTransform(
+    x,
+    [-840, 840],
+    [
+      "linear-gradient(135deg, rgb(0, 210, 238), rgb(0, 83, 238))",
+      // "linear-gradient(135deg, rgb(238, 0, 153), rgb(221, 0, 238))",
+      "linear-gradient(135deg, rgb(0, 238, 155), rgb(238, 178, 0))",
+    ]
+  );
+
+  const { scrollY, scrollYProgress } = useScroll();
+  // useMotionValueEvent(scrollY, "change", (latest) => console.log(latest));
+  const scale = useTransform(scrollYProgress, [0, 1], [1, 5]);
+
   return (
-    <Wrapper>
-      <Container ref={containerRef}>
-        <Box
-          drag // enables drag
-          dragSnapToOrigin // returns to origin when released
-          // dragConstraints={{ top: -200, bottom: 200, left: -200, right: 200 }}
-          dragConstraints={containerRef} // restricts drag within container
-          dragElastic={0} // defines the "stretchiness" of the drag — 0 = no elasticity, 1 = very elastic
-          variants={boxVariants} // connects to variant states
-          whileHover="hover" // triggers hover variant
-          whileTap="tap" // triggers tap variant
-          whileDrag="drag" // triggers drag variant
-        />
-      </Container>
+    <Wrapper style={{ background: gradient }}>
+      <Box style={{ x, rotateZ, scale }} drag="x" dragSnapToOrigin />
     </Wrapper>
   );
 }
